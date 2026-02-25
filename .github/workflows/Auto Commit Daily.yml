@@ -1,35 +1,34 @@
-name: Auto Commit Daily
+name: GitFlowX
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs every day at midnight UTC
-  workflow_dispatch:  # Allows manual trigger of the workflow
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write   # REQUIRED for pushing commits
 
 jobs:
   auto_commit:
-    runs-on: ubuntu-latest  # You can change this to another runner if desired
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Set up Git
-      run: |
-        git config --global user.name "farhan-saf7"
-        git config --global user.email "farhanazadshah7@gmail.com"
+      - name: Set up Git
+        run: |
+          git config user.name "farhan-saf7"
+          git config user.email "farhanazadshah7@gmail.com"
 
-    - name: Update the file
-      run: |
-        echo "Updated on $(date +'%Y-%m-%d %H:%M:%S')" > myfile.txt
+      - name: Update the file
+        run: |
+          echo "Updated on $(date +'%Y-%m-%d %H:%M:%S')" >> myfile.txt
 
-    - name: Add changes
-      run: git add myfile.txt
-
-    - name: Commit changes
-      run: |
-        git commit -m "Automated daily update $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-
-    - name: Push changes
-      run: git push origin main
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Uses the GitHub token to authenticate
+      - name: Commit and push
+        run: |
+          git add myfile.txt
+          git commit -m "Automated daily update $(date +'%Y-%m-%d %H:%M:%S')" || exit 0
+          git push
